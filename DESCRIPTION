@@ -1,0 +1,10 @@
+Package: dummyPackage
+Type: Package
+Title: A Dummy Package
+Version: 0.1.0
+Author: Your Name
+Maintainer: Your Name <youremail@example.com>
+Description: A dummy R package for CI/CD testing.
+License: CC BY 4.0
+Suggests: 
+    testthat
