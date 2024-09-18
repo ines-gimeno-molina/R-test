@@ -17,6 +17,10 @@ jobs:
       runs-on: ubuntu-latest
       env:
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      permissions:
+        contents: write
+      concurrency:
+          group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
   
       steps:
         - uses: actions/checkout@v4
@@ -32,12 +36,6 @@ jobs:
             extra-packages: any::covr, any::pkgdown, local::.
             needs: coverage, check, website
 
-    coverage:
-      runs-on: ubuntu-latest
-      env:
-        GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-  
-      steps:
         - name: Test coverage
           run: |
             covr::codecov(
@@ -61,16 +59,6 @@ jobs:
             name: coverage-test-failures
             path: ${{ runner.temp }}/package
 
-    build_site:
-      runs-on: ubuntu-latest
-      # Only restrict concurrency for non-PR jobs
-      concurrency:
-        group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
-      env:
-        GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      permissions:
-        contents: write
-      steps:
         - name: Build site
           run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
           shell: Rscript {0}
