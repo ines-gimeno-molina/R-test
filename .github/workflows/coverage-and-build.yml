@@ -1,31 +1,30 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+# From {cards} actions
 on:
     push:
       branches: [main, master]
     pull_request:
       branches: [main, master]
-    release:
-      types: [published]
     workflow_dispatch:
   
-name: pkgdown.yaml
-  
+name: Test and build pages
+
 permissions: read-all
   
 jobs:
-    pkgdown:
+    coverage_and_build:
       runs-on: ubuntu-latest
-      # Only restrict concurrency for non-PR jobs
-      concurrency:
-        group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
       env:
         GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       permissions:
         contents: write
+      concurrency:
+          group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+  
       steps:
         - uses: actions/checkout@v4
-  
+
         - uses: r-lib/actions/setup-pandoc@v2
   
         - uses: r-lib/actions/setup-r@v2
@@ -34,9 +33,32 @@ jobs:
   
         - uses: r-lib/actions/setup-r-dependencies@v2
           with:
-            extra-packages: any::pkgdown, local::.
-            needs: website
+            extra-packages: any::covr, any::pkgdown, local::.
+            needs: coverage, check, website
+
+        - name: Test coverage
+          run: |
+            covr::codecov(
+              quiet = FALSE,
+              clean = FALSE,
+              install_path = file.path(Sys.getenv("RUNNER_TEMP"), "package")
+            )
+          shell: Rscript {0}
   
+        - name: Show testthat output
+          if: always()
+          run: |
+            ## --------------------------------------------------------------------
+            find ${{ runner.temp }}/package -name 'testthat.Rout*' -exec cat '{}' \; || true
+          shell: bash
+  
+        - name: Upload test results
+          if: failure()
+          uses: actions/upload-artifact@v3
+          with:
+            name: coverage-test-failures
+            path: ${{ runner.temp }}/package
+
         - name: Build site
           run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
           shell: Rscript {0}
