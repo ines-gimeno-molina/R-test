@@ -1,6 +1,6 @@
 <!-- badges: start -->
 [![Codecov test coverage](https://codecov.io/gh/ines-gimeno-molina/R-test/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ines-gimeno-molina/R-test/?branch=main)
-[![R-CMD-check](https://github.com/ines-gimeno-molina/R-test/actions/workflows/check-package.yaml/badge.svg)](https://github.com/ines-gimeno-molina/R-test/actions/workflows/check-package.yml)
+[![R-CMD-check.yaml](https://github.com/ines-gimeno-molina/R-test/actions/workflows/check-package.yml/badge.svg)](https://github.com/ines-gimeno-molina/R-test/actions/workflows/check-package.yml)
 <!-- badges: end -->
 
 
